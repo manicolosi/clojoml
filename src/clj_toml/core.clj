@@ -29,8 +29,8 @@ apple = \"yes\"")
       :else (throw (RuntimeException. (str "Can't parse value: '" v "'"))))))
 
 (defn- parse-kv [m group line]
-  (let [[_ k v] (re-find #"^\s*([^\s]+)\s*=\s*([^\s]+)\s*$" line)]
-    (assoc-in m (conj group k) (parse-value v))))
+  (let [[_ k v] (re-find #"^([^\s]+)\s*=(.*)$" (str/trim line))]
+    (assoc-in m (conj group k) (parse-value (str/trim v)))))
 
 (defn- parse-lines [lines group acc]
   (if (nil? lines)
@@ -40,6 +40,20 @@ apple = \"yes\"")
         (recur (next lines) (parse-group group-name) acc)
         (recur (next lines) group (parse-kv acc group line))))))
 
-(defn parse [text]
-  (parse-lines (remove #(re-find #"^(#.*|\s*)$" %1) (str/split-lines text))
-               [] {}))
+(defn- filter-lines [lines]
+  (remove #(re-find #"^(\s*#.*|\s*)$" %1) lines))
+
+(defn- parse-lines-helper [lines]
+  (parse-lines (filter-lines lines) [] {}))
+
+(defn parse-str [s]
+  (parse-lines-helper (str/split-lines s)))
+
+(defn parse-reader [reader]
+  (parse-lines-helper (line-seq reader)))
+
+(defn parse [obj]
+  (condp #(isa? (class %2) %1) obj
+    java.lang.String (parse-str obj)
+    java.lang.Readable (parse-reader obj)
+    (throw (RuntimeException. (str "Don't know how to parse '" (class obj) "'")))))
