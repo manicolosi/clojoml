@@ -1,10 +1,15 @@
 # clj-toml
 
-A Clojure library to parse [TOML](https://github.com/mojombo/toml) configuration format.
+A Clojure library to parse the [TOML](https://github.com/mojombo/toml) configuration format.
 
 ## Usage
 
-FIXME
+    (ns your-namespace
+      (:require [clj-toml.core :as toml]))
+
+    ...
+
+    (toml/parse my-string)
 
 ## TODO
 
