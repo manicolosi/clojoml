@@ -30,6 +30,13 @@ user=> (pprint (with-reader [rdr (io/reader "example.toml")] (toml/parse rdr)))
  "title" "TOML Example"}
 ```
 
+## Installation
+
+`clojoml` is available as a Maven artifact from [Clojars](https://clojars.org/clojoml):
+
+    :dependencies
+      [[clojoml "0.1.0"]]
+
 ## TODO
 
 * Support special characters in strings
