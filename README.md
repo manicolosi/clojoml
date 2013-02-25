@@ -19,18 +19,22 @@ user=> (toml/parse "test = 123\n[group]\nsweet = \"action\"")
 user=> (require '[clojure.java.io :as io])
 nil
 
-user=> (pprint (with-reader [rdr (io/reader "example.toml")] (toml/parse rdr)))
-{"servers"
- {"beta" {"dc" "eqdc10", "ip" "10.0.0.2"},
-  "alpha" {"dc" "eqdc10", "ip" "10.0.0.1"}},
+user=> (pprint (with-open [rdr (io/reader "example.toml")] (toml/parse rdr)))
+{"clients" {:data [["gamma\", \"delta" 1 2]]},
+ "servers"
+ {"beta" {:dc "eqdc10", :ip "10.0.0.2"},
+  "alpha" {:dc "eqdc10", :ip "10.0.0.1"}},
  "database"
- {"enabled" true, "connection_max" 5000, "server" "192.168.1.1"},
+ {:enabled true,
+  :connection_max 5000,
+  :ports [8001 8001 8002],
+  :server "192.168.1.1"},
  "owner"
- {"dob" #inst "1979-05-27T12:32:00.000-00:00",
-  "bio" "GitHub Cofounder & CEO\\nLikes tater tots and beer.",
-  "organization" "GitHub",
-  "name" "Tom Preston-Werner"},
- "title" "TOML Example"}
+ {:dob #inst "1979-05-27T12:32:00.000-00:00",
+  :bio "GitHub Cofounder & CEO\nLikes tater tots and beer.",
+  :organization "GitHub",
+  :name "Tom Preston-Werner"},
+
 ```
 
 ## Installation
@@ -43,6 +47,7 @@ user=> (pprint (with-reader [rdr (io/reader "example.toml")] (toml/parse rdr)))
 ## TODO
 
 * Support multi-line arrays
+* Improve arrays of strings
 * Improved error reporting
 * Unit tests (I'm bad)
 
