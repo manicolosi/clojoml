@@ -4,6 +4,9 @@ A Clojure library to parse the [TOML](https://github.com/mojombo/toml)
 configuration format. Check the TODO section below for what's currently
 supported.
 
+Compliant with revision 7cc56104bbf1a5b4119c2512bb34bb00be42bc86 of
+specification. Main thing that is still missing is multi-line arrays.
+
 ## Usage
 
 ```clojure
