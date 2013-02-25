@@ -39,14 +39,9 @@ user=> (pprint (with-reader [rdr (io/reader "example.toml")] (toml/parse rdr)))
 
 ## TODO
 
-* Support special characters in strings
-* Support arrays
-  - Multi-line
-  - Nested
+* Support multi-line arrays
 * Improved error reporting
-* Parse from seqs of lines and from IO objects
 * Unit tests (I'm bad)
-* Partial line comments
 
 ## License
 
