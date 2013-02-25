@@ -1,18 +1,11 @@
-(ns clj-toml.core
+(ns clojoml.core
   (:require [clojure.string :as str])
   (:import [java.text SimpleDateFormat]))
-
-(def s1
-"[fruit]
-type = \"apple\"
-
-[fruit.type2]
-apple = \"yes\"")
 
 (defn- parse-group [group-name]
   (str/split group-name #"\."))
 
-(def date-format (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss"))
+(def ^:private date-format (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss"))
 
 (defn- parse-value [v]
   (let [[_ string] (re-find #"^\"(.*)\"$" v)

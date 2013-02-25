@@ -1,4 +1,4 @@
-# clj-toml
+# Clojoml
 
 A Clojure library to parse the [TOML](https://github.com/mojombo/toml)
 configuration format. Check the TODO section below for what's currently
@@ -7,7 +7,7 @@ supported.
 ## Usage
 
 ```clojure
-user=> (require '[clj-toml.core :as toml])
+user=> (require '[clojoml.core :as toml])
 nil
 
 user=> (toml/parse "test = 123\n[group]\nsweet = \"action\"")

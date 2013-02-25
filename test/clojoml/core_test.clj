@@ -1,6 +1,6 @@
-(ns clj-toml.core-test
+(ns clojoml.core-test
   (:use clojure.test
-        clj-toml.core))
+        clojoml.core))
 
 (deftest a-test
   (testing "FIXME, I fail."
