@@ -1,6 +1,7 @@
 (ns clojoml.parse
   (:refer-clojure :exclude [char comment])
-  (:use [the.parsatron]))
+  (:use [the.parsatron])
+  (:import [java.text SimpleDateFormat]))
 
 (defn not-char [c]
   (token #(not= c %)))
@@ -95,14 +96,51 @@
          read-string
          always)))
 
-(defparser value []
-  (choice
-    (toml-string)
-    (toml-number)
-    (toml-bool)
-    ;(toml-datetime)
-    ;(toml-array)
-    ))
+(declare toml-value)
+
+(defparser toml-array []
+  (between (char \[) (char \])
+           (let->> [_ (maybe (eol))
+                    v1 (toml-value)
+                    vrest (many (>> (char \,) (maybe (eol)) (toml-value)))
+                    _ (whitespace)]
+             (always (vec (conj vrest v1))))))
+
+(def ^:private date-format (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss"))
+
+(defparser toml-datetime []
+  ; Unsure why attempt is necessary... aparently toml-datetime is somehow
+  ; consuming input when it fails...
+  (attempt
+    (let->> [datetime (join
+                        (times 4 (digit))
+                        (char \-)
+                        (times 2 (digit))
+                        (char \-)
+                        (times 2 (digit))
+                        (char \T)
+                        (times 2 (digit))
+                        (char \:)
+                        (times 2 (digit))
+                        (char \:)
+                        (times 2 (digit))
+                        (char \Z))]
+      (->> datetime
+           flatten
+           (apply str)
+           (.parse date-format)
+           always))))
+
+(defparser toml-value []
+  (let->> [_ (whitespace)
+           v (choice
+               (toml-array)
+               (toml-string)
+               (toml-datetime)
+               (toml-number)
+               (toml-bool))
+           _ (whitespace)]
+    (always v)))
 
 (defparser comment []
   (let->> [_ (char \#)
@@ -115,7 +153,8 @@
            _ (whitespace)
            _ (char \=)
            _ (whitespace)
-           v (value)
+           v (toml-value)
+           _ (whitespace)
            l (lineno)]
     (always {:type :key-value :line l :key k :val v})))
 
