@@ -4,4 +4,5 @@
   :author "Mark A. Nicolosi"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.4.0"]])
+  :dependencies [[org.clojure/clojure "1.4.0"]
+                 [the/parsatron "0.0.3"]])
