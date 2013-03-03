@@ -31,29 +31,22 @@
 (defparser hex-digit []
   (either
     (digit)
-    (choice ; Case sensitive
-      (char \a)
-      (char \b)
-      (char \c)
-      (char \d)
-      (char \e)
-      (char \f))))
+    (token #{\a \b \c \d \e \f \A \B \C \D \E \F})))
+
+(defn parse-hex [s]
+  (Integer/valueOf s 16))
 
 (defparser special-character []
   (let->> [_ (char \\)
-           c (choice
-               (char \t)
-               (char \n)
-               (char \r)
-               (char \\)
-               (char \")
+           c (either
+               (token #{\t \n \r \\ \"})
                (>> (char \x) (times 2 (hex-digit))))]
     (always
       (cond
         (= c \n) \newline
         (= c \t) \tab
         (= c \r) \return
-        (seq? c) (->> c (apply str) Integer/valueOf clojure.core/char)
+        (seq? c) (->> c (apply str) parse-hex clojure.core/char)
         :else c))))
 
 (defparser toml-string []
@@ -132,15 +125,13 @@
            always))))
 
 (defparser toml-value []
-  (let->> [_ (whitespace)
-           v (choice
-               (toml-array)
-               (toml-string)
-               (toml-datetime)
-               (toml-number)
-               (toml-bool))
-           _ (whitespace)]
-    (always v)))
+  (>> (whitespace)
+      (choice
+        (toml-array)
+        (toml-string)
+        (toml-datetime)
+        (toml-number)
+        (toml-bool))))
 
 (defparser comment []
   (let->> [_ (char \#)
@@ -150,11 +141,8 @@
 
 (defparser key-value []
   (let->> [k (key-name)
-           _ (whitespace)
-           _ (char \=)
-           _ (whitespace)
+           _ (between (whitespace) (whitespace) (char \=))
            v (toml-value)
-           _ (whitespace)
            l (lineno)]
     (always {:type :key-value :line l :key k :val v})))
 
