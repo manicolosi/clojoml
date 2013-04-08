@@ -1,4 +1,4 @@
-(ns clojoml.parse
+(ns manicolosi.clojoml.parser
   (:refer-clojure :exclude [char comment])
   (:use [the.parsatron])
   (:import [java.text SimpleDateFormat]))
@@ -33,20 +33,19 @@
     (digit)
     (token #{\a \b \c \d \e \f \A \B \C \D \E \F})))
 
-(defn parse-hex [s]
-  (Integer/valueOf s 16))
-
 (defparser special-character []
   (let->> [_ (char \\)
            c (either
-               (token #{\t \n \r \\ \"})
-               (>> (char \x) (times 2 (hex-digit))))]
+               (token #{\b \t \n \f \r \\ \" \/})
+               (>> (char \u) (times 4 (hex-digit))))]
     (always
       (cond
-        (= c \n) \newline
+        (= c \b) \backspace
         (= c \t) \tab
+        (= c \n) \newline
+        (= c \f) \formfeed
         (= c \r) \return
-        (seq? c) (->> c (apply str) parse-hex clojure.core/char)
+        (seq? c) (->> c (apply str) (str "\\u") read-string)
         :else c))))
 
 (defparser toml-string []
@@ -102,7 +101,7 @@
 (def ^:private date-format (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss"))
 
 (defparser toml-datetime []
-  ; Unsure why attempt is necessary... aparently toml-datetime is somehow
+  ; Unsure why attempt is necessary... apparently toml-datetime is somehow
   ; consuming input when it fails...
   (attempt
     (let->> [datetime (join
@@ -163,4 +162,7 @@
                                   _ (choice (comment) (eol) (eof))]
                            (always line)))))
            _ (eof)]
-    (always lines)))
+    (always (remove nil? lines))))
+
+(defn run-toml [s]
+  (run (toml) s))
